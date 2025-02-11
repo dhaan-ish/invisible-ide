@@ -4,7 +4,17 @@
   "description": "Create an online code editor using React, Node.js, Express and Webpack.",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "node src/server/index.js"
+    "heroku-server": "node src/server/index.js",
+    "heroku-client": "node server.js",
+    "start": "node src/server/index.js",
+    "build": "webpack --env production",
+    "lint": "eslint src/**/*.js",
+    "client": "cross-env NODE_ENV=development PORT=3000 webpack serve --env development --devtool inline-source-map --hot",
+    "client-prod": "NODE_ENV=production PORT=3001 webpack serve",
+    "server": "nodemon src/server/index.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "prod": "concurrently \"npm run server\" \"npm run client-prod\"",
+    "start-prod": "PORT=9010 node src/server/index.js"
   },
   "author": {
     "name": "Rong Zhuang",
