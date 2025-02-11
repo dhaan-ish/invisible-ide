@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, FormGroup, Col, Button } from 'react-bootstrap';
+import { Form, FormGroup, Col, Button, ControlLabel, FormControl } from 'react-bootstrap';
 import LangSelector from './controls/LangSelector';
 import CodeEditor from './controls/CodeEditor';
 import AlertDismissable from './controls/AlertDismissable';
@@ -24,7 +24,7 @@ class Editor extends React.Component {
       task: {
         lang: 'javascript',
         code: '',
-        qn: 1,
+        qn: 1,  // Initial question number
       },
       response: {
         status: '0',
@@ -36,11 +36,11 @@ class Editor extends React.Component {
     this.updateSolution = this.updateSolution.bind(this);
     this.handleLangChange = this.handleLangChange.bind(this);
     this.handleCodeChange = this.handleCodeChange.bind(this);
+    this.handleQuestionChange = this.handleQuestionChange.bind(this);  // New handler for question change
   }
 
   componentDidMount() {
     CompilerApi.getTask('javascript')
-      // .then(res => res.json())
       .then((task) => {
         console.log(task);
         this.setState({ task });
@@ -71,8 +71,6 @@ class Editor extends React.Component {
   }
 
   updateSolution(event) {
-    // event.preventDefault();
-    console.log(this.state.task);
     const field = event.target.name;
     const { task } = this.state;
     task[field] = event.target.value;
@@ -88,6 +86,15 @@ class Editor extends React.Component {
     const response = { status: '0', message: '' };
     this.setState({ response });
     return this.setState({ selectedLang: index });
+  }
+
+  // New function to handle question number change
+  handleQuestionChange(event) {
+    const questionNumber = parseInt(event.target.value, 10);
+    const { task } = this.state;
+    task.qn = questionNumber;  // Update task.qn based on selected number
+    this.setState({ task });
+    console.log(task);
   }
 
   render() {
@@ -110,6 +117,21 @@ class Editor extends React.Component {
           </FormGroup>
           <FormGroup>
             <Col sm={2}>
+              {/* Dropdown for selecting question number */}
+              <ControlLabel>Question No.</ControlLabel>
+              <FormControl
+                componentClass="select"  // Set as a select element for dropdown
+                value={this.state.task.qn}
+                onChange={this.handleQuestionChange}
+              >
+                {[...Array(10).keys()].map((i) => (
+                  <option key={i} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </FormControl>
+            </Col>
+            <Col sm={2}>
               <Button bsStyle="primary" type="button" onClick={this.handleRun}>
                 Run
               </Button>
@@ -118,7 +140,7 @@ class Editor extends React.Component {
                 message={this.state.response.message}
               />
             </Col>
-            <Col sm={10} />
+            <Col sm={8} />
           </FormGroup>
           <FormGroup>
             <Col sm={12}>
