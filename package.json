@@ -4,9 +4,9 @@
   "description": "Create an online code editor using React, Node.js, Express and Webpack.",
   "main": "src/server/index.js",
   "scripts": {
+    "start": "npm run prod", 
     "heroku-server": "node src/server/index.js",
     "heroku-client": "node server.js",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
     "build": "webpack --env production",
     "lint": "eslint src/**/*.js",
     "client": "cross-env NODE_ENV=development PORT=3000 webpack serve --env development --devtool inline-source-map --hot",
@@ -17,8 +17,8 @@
     "start-prod": "PORT=9010 node src/server/index.js"
   },
   "author": {
-    "name": "dhaan-ish",
-    "email": "dhaanishahamed7@gmail.com"
+    "name": "Rong Zhuang",
+    "email": "jojozhuang@gmail.com"
   },
   "license": "MIT",
   "dependencies": {
@@ -64,7 +64,7 @@
     "yargs-parser": "20.2.9"
   },
   "engines": {
-    "node": "18.0.0",
-    "npm": "9.0.0"
+    "node": "16.13.1",
+    "npm": "8.1.2"
   }
 }
