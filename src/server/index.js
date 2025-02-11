@@ -50,6 +50,10 @@ app.get('/api/file/:lang', (req, res) => {
   });
 });
 
+app.get('/gee', (req, res) => {
+  res.send('Hello World!');
+});
+
 app.post('/api/run', (req, res) => {
   const file = req.body;
   console.log(file);
