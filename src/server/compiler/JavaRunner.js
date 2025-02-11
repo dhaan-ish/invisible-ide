@@ -190,6 +190,179 @@ const jsonData = {
   ]
 };
 
+const output = {
+  "1": [
+      "00 19",
+      "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19",
+      "0C",
+      "0D 0D 0D 0D 0D",
+      "0F 10 11 12 13",
+      "19 19 19 19",
+      "00 00",
+      "00",
+      "13 00 0B 0E 12",
+      "02 08 13 02 07 04 0D 0D 00 08",
+      "02 0E 03 08 0D 06",
+      "08 0D 15 08 12 08 01 0B 04",
+      "08 03 04",
+      "13 00 13 00 0A 00 04",
+      "00 08"
+  ],
+  "2": [
+      "281",
+      "1",
+      "4",
+      "8",
+      "4561",
+      "26",
+      "33",
+      "52",
+      "57",
+      "97",
+      "251",
+      "597",
+      "1795",
+      "4031",
+      "52017"
+  ],
+  "3": [
+      "210",
+      "210",
+      "5005",
+      "46189",
+      "1616615",
+      "5",
+      "239923088",
+      "68719771",
+      "880486769",
+      "97",
+      "113",
+      "2",
+      "-1",
+      "-1",
+      "-1"
+  ],
+  "4": [
+      "fdvcbtjpn",
+      "hplb",
+      "bpp",
+      "vnjvfrsf",
+      "prpgrbmmjng",
+      "fxbmplf",
+      "tfstcbsf",
+      "cpmpvtfr",
+      "blgprjthm",
+      "scjfncf",
+      "dbtb",
+      "jnpvt",
+      "pvtpvt",
+      "strjng",
+      "pythpn"
+  ],
+  "5": [
+      "a",
+      "p",
+      "a",
+      "a",
+      "a",
+      "a",
+      "l",
+      "z",
+      "x",
+      "a",
+      "c",
+      "a",
+      "a",
+      "t",
+      "a"
+  ],
+  "6": [
+      "c",
+      "-1",
+      "z",
+      "a",
+      "-1",
+      "a",
+      "c",
+      "-1",
+      "b",
+      "c",
+      "m",
+      "a",
+      "e",
+      "k",
+      "r"
+  ],
+  "7": [
+      "4",
+      "5",
+      "3",
+      "1",
+      "3",
+      "3",
+      "7",
+      "1",
+      "9",
+      "9",
+      "7",
+      "4",
+      "1",
+      "9",
+      "7"
+  ],
+  "8": [
+      "4",
+      "2",
+      "3",
+      "1",
+      "7",
+      "2",
+      "1",
+      "2",
+      "5",
+      "11",
+      "5",
+      "2",
+      "1",
+      "8",
+      "16"
+  ],
+  "9": [
+      "5",
+      "1",
+      "5",
+      "2",
+      "5",
+      "1",
+      "7",
+      "1",
+      "3",
+      "9",
+      "4",
+      "1",
+      "5",
+      "15",
+      "5"
+  ],
+  "10": [
+      "1",
+      "1",
+      "2",
+      "2",
+      "0",
+      "0",
+      "0",
+      "25",
+      "25",
+      "0",
+      "13",
+      "25",
+      "34",
+      "51",
+      "35"
+  ]
+};
+
 class JavaRunner extends Runner {
   defaultFile() {
     return this.defaultfile;
@@ -208,7 +381,7 @@ class JavaRunner extends Runner {
     this.compile(file, directory, filename, qn, callback);
   }
 
-  // compile java source file
+  // Compile the Java source file
   compile(file, directory, filename, qn, callback) {
     const options = { cwd: directory };
     const argsCompile = [file];
@@ -229,29 +402,32 @@ class JavaRunner extends Runner {
     });
   }
 
-  // execute the compiled java class file
+  // Execute the compiled Java class file
   execute(directory, filename, options, qn, callback) {
     const cmdRun = filename.split('.')[0]; // Remove the file extension to get the class name
     console.log(`Executing: java ${cmdRun}`);
 
     // Get the input data based on qn (either "1" or "2")
     const testCaseData = jsonData[qn];
+    const expectedOutput = output[qn];
+
     if (!testCaseData) {
       console.log(`Invalid test case number: ${qn}`);
       return;
     }
 
-    let allOutput = [];
+    let allTestResults = [];
     let processedCount = 0;
 
     // Loop through the test case data and pass each value to the Java executable
-    testCaseData.forEach(input => {
-      this.runJavaExecutable(directory, cmdRun, input, options, (status, output) => {
-        allOutput.push(output);  // Append the output for each test case
+    testCaseData.forEach((input, index) => {
+      this.runJavaExecutable(directory, cmdRun, input, options, (status, scriptOutput) => {
+        let testResult = this.checkTestCase(scriptOutput, expectedOutput[index]);
+        allTestResults.push(testResult);
 
         processedCount++;
         if (processedCount === testCaseData.length) {
-          callback('0', allOutput.join('\n'));  // Return all outputs after all test cases are processed
+          callback('0', allTestResults.join('\n')); // Return results for all test cases
         }
       });
     });
@@ -260,7 +436,6 @@ class JavaRunner extends Runner {
   // Run the Java executable with input and collect output
   runJavaExecutable(directory, cmdRun, input, options, callback) {
     const executor = spawn('java', ['-Xmx2G', cmdRun], options);  // Example to set heap size to 2 GB
-
 
     // Send input data to the Java process
     if (input) {
@@ -282,6 +457,18 @@ class JavaRunner extends Runner {
     executor.on('close', (output) => {
       console.log(`Process exited with code: ${output}`);
     });
+  }
+
+  // Check if the actual output matches the expected output
+  checkTestCase(actualOutput, expectedOutput) {
+    const formattedActual = actualOutput.trim();
+    const formattedExpected = expectedOutput.trim();
+
+    if (formattedActual === formattedExpected) {
+      return 'PASSED';
+    } else {
+      return `FAILED (Expected: ${formattedExpected}, Got: ${formattedActual})`;
+    }
   }
 
   log(message) {
