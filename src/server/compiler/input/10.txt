@@ -1,0 +1,15 @@
+ab 
+ba 
+abc 
+cba
+aaa
+zz
+aa
+az
+za
+zzzzzzzzzz
+hello 
+world
+python
+java
+swift

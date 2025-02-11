@@ -1,0 +1,15 @@
+education
+hola
+app
+universe
+programming
+example
+testcase
+computer
+algorithm
+science
+data
+input
+output
+string
+python
